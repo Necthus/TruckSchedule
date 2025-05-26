@@ -5,9 +5,9 @@ import numpy as np
 import datetime
 import pandas as pd
 from typing import List
+from bisect import bisect_left, bisect_right
 
-LOADING_TIME = 15
-truck_speed = 0.2 #km/min
+LOAD_CONCRETE_TIME = 5 # 分钟
 
 from enum import Enum
 
@@ -27,7 +27,7 @@ class Truck:
         self.id = Truck.id_count
         
         Truck.id_count+=1
-        
+        # 车辆服务的订单
         self.oid = oid
 
         self.from_sid = from_sid
@@ -75,12 +75,12 @@ class ProductionLine:
     
     def add_truck_waiting(self):       
         index = np.argmin(self.lines)
-        self.lines[index]+=LOADING_TIME
+        self.lines[index]+=LOAD_CONCRETE_TIME
         return self.lines[index]
     
     def wait_time(self):
         index = np.argmin(self.lines)
-        return self.lines[index]+LOADING_TIME
+        return self.lines[index]+LOAD_CONCRETE_TIME
             
     def step_time(self,time):
         self.lines = np.maximum(self.lines-time,0)
@@ -102,6 +102,13 @@ class Station:
         self.dispatch_record = []
         
         self.return_time_list = []
+        # 最近一次服务的工地
+        self.recent_serve_pid = None
+        
+        
+        self.arrange_dispatch = []
+        
+        
         
     def reset(self):
         self.truck_num = self.init_truck_num
@@ -162,8 +169,21 @@ class Station:
         else:
             index = -1
             
-        return len(self.dispatch_record)-1-index        
+        return len(self.dispatch_record)-1-index 
     
+    
+    def count_future_dispatch_given_range(self, current_time, time_range):
+        
+        # 计算结束时间
+        end_time = current_time + datetime.timedelta(minutes=time_range)
+        
+        # 使用 bisect 找到开始时间和结束时间的索引
+        start_index = bisect_left(self.arrange_dispatch, current_time)
+        end_index = bisect_right(self.arrange_dispatch, end_time)
+        
+        # 统计范围内的元素数量
+        return end_index - start_index   
+
     
     
     def add_return_truck(self,return_time):
@@ -182,15 +202,27 @@ class Station:
         return f'sid:{self.sid},coord:{self.coord}'
 
 class Order:
-    def __init__(self,oid,pid,quantity,n_need,create_time):
+    def __init__(self,oid,pid,quantity,n_need,plan_arrive_time):
         self.oid = oid
         self.pid = pid
         self.quantity = quantity
         self.n_need = n_need
         self.n_dispatch = 0
         self.n_finish = 0
-        self.create_time  = create_time
+        # 计划需要到达的时间，早到需要等待，晚到有惩罚
+        self.plan_arrive_time :datetime.datetime= plan_arrive_time
         self.finish_time = datetime.datetime(2000,1,1)
+        
+        # 上一次浇筑完毕的时间
+        self.last_cast_time :datetime.datetime= None
+        
+        # 有多少次超时30min
+        self.overtime_count = 0
+        
+        # 收入为每方商砼350元
+        self.revenue = self.quantity*350
+        
+        
     def __repr__(self):
         # 创建一个字符串表示，包含所有类成员
         members = [f"{key}: {value}" for key, value in self.__dict__.items()]
@@ -210,7 +242,7 @@ class OrderIterator:
         
         if self.orders:
         
-            order_ts = self.orders[0]['create_time']
+            order_ts = self.orders[0]['deliver_time']
             # 按minute返回下个订单的时间
             return ((order_ts-ts).total_seconds())//60
         else:
@@ -220,10 +252,46 @@ class OrderIterator:
         
         raw_order = self.orders.pop(0)
         
-        ct = raw_order['create_time']
-        oid = raw_order['id']
+        pt = raw_order['deliver_time']
+        oid = raw_order['order_id']
         pid = raw_order['project_id']
         q = raw_order['order_quantity']
         count = raw_order['ticket_count']
         
-        return Order(oid,pid,q,count,ct) 
+        return Order(oid,pid,q,count,pt) 
+    
+    
+    
+    
+class Dispatch:
+    def __init__(self,oid,pid,from_sid,dispatch_time,ret_sid):
+        self.oid = oid  # 负责的订单编号
+        self.pid = pid # 送往的工地（项目）编号
+        self.from_sid = from_sid # 从哪一个厂站出发
+        self.dispatch_time :datetime.datetime = dispatch_time # 派出时间（不一定是实际离开时间，因为先要在生产线上装货）
+        self.ret_sid = ret_sid # 浇筑完，要返回哪一个厂站
+        
+        
+class DispatchIterator:
+    def __init__(self,dispatchs):
+        self.dispatchs :List[Dispatch]= dispatchs.copy()
+        
+    def __bool__(self):
+        return bool(self.dispatchs)  # 如果 items 列表非空，则返回 True
+    
+    def next_dispatch_lt(self,ts):
+        
+        
+        if self.dispatchs:
+        
+            dispatch_ts = self.dispatchs[0].dispatch_time
+            # 按minute返回下个调度的时间
+            return ((dispatch_ts-ts).total_seconds())//60
+        else:
+            return float('inf')
+    
+    def return_next_dispatch(self):
+        
+        d = self.dispatchs.pop(0)
+
+        return d
