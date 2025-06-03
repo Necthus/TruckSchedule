@@ -51,7 +51,7 @@ class Environment:
         self.init_project()
         self.init_station()
         self.init_orders()
-        self.init_interaction()
+        self.init_interaction2()
         self.split_orders()
         
         self.order_iter = OrderIterator(self.orders)
@@ -765,43 +765,50 @@ class Environment:
                 
         return True        
             
-        
+    # 订单调度，可能要派遣多个车辆
     def schedule_order(self,order:Order):
         
+        
+        # 计算厂站到工地的距离，列表
         station_list = [[sid,dist] for sid,dist in self.interaction[order.pid].items()]
         
-        
+        # 计算每个厂站的去程时间和总时间
         sid_go_time_dict = {}
         sid_total_time_dict = {}
         can_dispatch_set = set()
-          
+        
+        # 遍历厂站列表，计算每个厂站的去程时间和总时间
         for sid,dist in station_list:
             wt = self.stations[sid].product_line.wait_time()
             gt = round(dist/TRUCK_SPEED)
             
             sid_go_time_dict[sid]=gt
             sid_total_time_dict[sid]=wt+gt
+            # 如果该厂站有车可以调度
             if self.stations[sid].have_truck():
+                # 将该厂站加入可以调度的集合
                 can_dispatch_set.add(sid)
         
         
         need = order.n_need-order.n_dispatch
         # 本轮次刚dispatch车的sid
-        lsid = -1
+        last_dispatch_sid = -1
         
         for i in range(need):
             
             # 更新本轮次刚dispatch车的staion的状态
-            if lsid!=-1:
-                wt = self.stations[lsid].product_line.wait_time()
-                gt = sid_go_time_dict[lsid]
-                sid_total_time_dict[lsid]=wt+gt
-                if not self.stations[lsid].have_truck():
-                    can_dispatch_set.remove(lsid)
+            if last_dispatch_sid!=-1:
+                # 更新该厂站的等待时间和总时间
+                # 这里的wt是厂站的等待时间，gt是去程时间
+                wt = self.stations[last_dispatch_sid].product_line.wait_time()
+                gt = sid_go_time_dict[last_dispatch_sid]
+                sid_total_time_dict[last_dispatch_sid]=wt+gt
+                # 如果该厂站没有车了，就从可以调度的集合中删除
+                if not self.stations[last_dispatch_sid].have_truck():
+                    can_dispatch_set.remove(last_dispatch_sid)
                     
-            
+                    
             optimal_sid = min(sid_total_time_dict, key=lambda k: sid_total_time_dict[k])
-            
             actual_sid = min(can_dispatch_set,key=lambda k:sid_total_time_dict[k],default=None)
             
             
@@ -848,14 +855,12 @@ class Environment:
                 
                 self.dispatch_out_in_a_step +=1
                 
-                lsid = actual_sid
+                last_dispatch_sid = actual_sid
                 
         return True
         
     def truck_state_change(self,truck:Truck):
         # 1 去厂站装水泥 2 排队等待（不一定）+装水泥（一定时间） 3 去工地卸水泥 + 卸水泥（不需要排队） 4 返程
-        
-        
         # 车辆从闲置状态开始/不可能
         if truck.state == TruckState.Free:
             
@@ -974,8 +979,6 @@ class Environment:
          
         
     def lat_lng_to_grid(self,lat,lng):
-        
-        
         km_per_lat = 111
         km_per_lng = 111 * math.cos(math.radians((22.47+22.803) / 2))
 
@@ -1053,4 +1056,35 @@ class Environment:
                     project_station_interaction[project_id][station_id]=self.distance_between_grids(project_loc[0],project_loc[1],station_loc[0],station_loc[1])
                 
         self.interaction = project_station_interaction
+        
+        
+    def init_interaction2(self):
+        
+        project_station_interaction = {}
+        
+        for project_id, project_loc in self.projects.items():
+            project_station_interaction[project_id] = {}
+            
+            for station_id, station in self.stations.items():
+                station_loc = station.coord
+                distance = self.distance_between_grids(project_loc[0], project_loc[1], station_loc[0], station_loc[1])
+                
+                if distance >30:
+                    continue
+                # 只记录距离小于30km的厂站
+                project_station_interaction[project_id][station_id] = distance
+                
+        self.interaction = project_station_interaction
+                
+                
+                
+        
+        
+        
+        
+        
+        
+        
+        
+        
                     
