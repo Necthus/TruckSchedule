@@ -7,7 +7,7 @@ import pandas as pd
 from typing import List
 from bisect import bisect_left, bisect_right
 
-LOAD_CONCRETE_TIME = 5 # 分钟
+LOAD_CONCRETE_TIME = 10 # 分钟
 
 from enum import Enum
 
@@ -103,7 +103,7 @@ class Station:
         
         self.return_time_list = []
         # 最近一次服务的工地
-        self.recent_serve_pid = None
+        self.recent_serve_pid = 0
         
         
         self.arrange_dispatch = []
@@ -116,7 +116,9 @@ class Station:
         self.return_num = 0
         self.predict_return_list = []
         self.dispatch_record = []
-        self.return_time_list = []    
+        self.return_time_list = [] 
+        self.recent_serve_pid = 0 
+        self.arrange_dispatch = []  
         
     def have_truck(self):
         return self.truck_num>0
@@ -230,9 +232,41 @@ class Order:
     
 
         
+# class OrderIterator:
+#     def __init__(self,orders):
+#         self.orders = orders.copy()
+        
+#     def __bool__(self):
+#         return bool(self.orders)  # 如果 items 列表非空，则返回 True
+    
+#     def next_order_lt(self,ts):
+        
+        
+#         if self.orders:
+        
+#             order_ts = self.orders[0]['deliver_time']
+#             # 按minute返回下个订单的时间
+#             return ((order_ts-ts).total_seconds())//60
+#         else:
+#             return float('inf')
+    
+#     def return_next_order(self):
+        
+#         raw_order = self.orders.pop(0)
+        
+#         pt = raw_order['deliver_time']
+#         oid = raw_order['order_id']
+#         pid = raw_order['project_id']
+#         q = raw_order['order_quantity']
+#         count = raw_order['ticket_count']
+        
+#         return Order(oid,pid,q,count,pt)
+    
+
+import copy
 class OrderIterator:
-    def __init__(self,orders):
-        self.orders = orders.copy()
+    def __init__(self,orders:List[Order]):
+        self.orders = copy.deepcopy(orders)
         
     def __bool__(self):
         return bool(self.orders)  # 如果 items 列表非空，则返回 True
@@ -241,25 +275,14 @@ class OrderIterator:
         
         
         if self.orders:
-        
-            order_ts = self.orders[0]['deliver_time']
+            order_ts = self.orders[0].plan_arrive_time
             # 按minute返回下个订单的时间
             return ((order_ts-ts).total_seconds())//60
         else:
             return float('inf')
     
     def return_next_order(self):
-        
-        raw_order = self.orders.pop(0)
-        
-        pt = raw_order['deliver_time']
-        oid = raw_order['order_id']
-        pid = raw_order['project_id']
-        q = raw_order['order_quantity']
-        count = raw_order['ticket_count']
-        
-        return Order(oid,pid,q,count,pt) 
-    
+        return self.orders.pop(0)
     
     
     
@@ -270,7 +293,8 @@ class Dispatch:
         self.from_sid = from_sid # 从哪一个厂站出发
         self.dispatch_time :datetime.datetime = dispatch_time # 派出时间（不一定是实际离开时间，因为先要在生产线上装货）
         self.ret_sid = ret_sid # 浇筑完，要返回哪一个厂站
-        
+
+
         
 class DispatchIterator:
     def __init__(self,dispatchs):
@@ -295,3 +319,8 @@ class DispatchIterator:
         d = self.dispatchs.pop(0)
 
         return d
+    
+    
+    
+    
+    
