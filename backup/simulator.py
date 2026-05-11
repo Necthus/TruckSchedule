@@ -46,7 +46,7 @@ class Environment:
         
         self.order_iter = OrderIterator(self.orders)
         
-        self.truck_list = TruckList()
+        self.truck_list = TruckIterator()
         
         
         
@@ -68,7 +68,7 @@ class Environment:
         self.finished_orders = {}
         
         self.order_iter = OrderIterator(self.orders)
-        self.truck_list = TruckList()
+        self.truck_list = TruckIterator()
         
         self.reward_in_a_step = 0
         self.dispatch_out_in_a_step = 0
@@ -99,9 +99,9 @@ class Environment:
         
         order = self.unfinished_orders[oid]
         
-        order.n_finish+=1
+        order.n_already_finished+=1
         # 如果已经运输完成了指定次数
-        if order.n_finish == order.n_need:
+        if order.n_already_finished == order.n_need:
             # 存档
             self.finished_orders[oid]=order
             order.finish_time = self.current_time
@@ -382,7 +382,7 @@ class Environment:
                 can_dispatch_set.add(sid)
         
         
-        need = order.n_need-order.n_dispatch
+        need = order.n_need-order.n_already_dispatched
         # 本轮次刚dispatch车的sid
         lsid = -1
         
@@ -443,7 +443,7 @@ class Environment:
                 # 加入事件队列 
                 self.truck_list.insert_in_order(new_truck)
                 # 订单已经派出+1
-                order.n_dispatch+=1
+                order.n_already_dispatched+=1
                 
                 self.dispatch_out_in_a_step +=1
                 
@@ -472,7 +472,7 @@ class Environment:
                 can_dispatch_set.add(sid)
         
         
-        need = order.n_need-order.n_dispatch
+        need = order.n_need-order.n_already_dispatched
         # 本轮次刚dispatch车的sid
         lsid = -1
         
@@ -533,7 +533,7 @@ class Environment:
                 # 加入事件队列 
                 self.truck_list.insert_in_order(new_truck)
                 # 订单已经派出+1
-                order.n_dispatch+=1
+                order.n_already_dispatched+=1
                 
                 self.dispatch_out_in_a_step +=1
                 

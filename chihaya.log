@@ -1,0 +1,72 @@
+---------------------------实验开始------------------------------
+Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Fastest', reposition_method='Urgent', env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1.5, overtime_pay_for_station_per_hour=200, overtime_pay_for_project_per_hour=300, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
+厂站初始车数量：15，生产线数量：4
+Dispatch method: Fastest, Reposition method: Urgent
+以下是路程指标：
+总的过去距离：128574.01823998024 km
+总的返回距离：149793.36572832344 km
+总的额外距离（工作结束后reposition）：45065.741919607346 km
+总的燃油消耗：122908.18241053593 L
+总的燃油成本：983265.4592842874 RMB
+总的交付方量：69374.06 m3
+总的交付收入：24280921.0 RMB
+总的超时罚款：217582.25 RMB
+总的连续浇筑罚款：235000 RMB
+总的司机加班支出：133731.13246382304 RMB
+总的厂站加班补偿支出：13436.39 RMB
+总的工地加班补偿支出：8680.58 RMB
+总的成本：1591695.8139703327 RMB，占收入的6.56%
+---------------------------实验开始------------------------------
+Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Fastest', reposition_method='Retrace', env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1.5, overtime_pay_for_station_per_hour=200, overtime_pay_for_project_per_hour=300, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
+厂站初始车数量：15，生产线数量：4
+Dispatch method: Fastest, Reposition method: Retrace
+以下是路程指标：
+总的过去距离：128505.9304397911 km
+总的返回距离：128505.9304397911 km
+总的额外距离（工作结束后reposition）：0 km
+总的燃油消耗：102822.26435183288 L
+总的燃油成本：822578.1148146631 RMB
+总的交付方量：69374.06 m3
+总的交付收入：24280921.0 RMB
+总的超时罚款：294570.5 RMB
+总的连续浇筑罚款：665000 RMB
+总的司机加班支出：0 RMB
+总的厂站加班补偿支出：13499.33 RMB
+总的工地加班补偿支出：9095.08 RMB
+总的成本：1804743.0314813296 RMB，占收入的7.43%
+---------------------------实验开始------------------------------
+Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Follow', reposition_method='Urgent', env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1.5, overtime_pay_for_station_per_hour=200, overtime_pay_for_project_per_hour=300, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
+厂站初始车数量：15，生产线数量：4
+Dispatch method: Follow, Reposition method: Urgent
+以下是路程指标：
+总的过去距离：145062.52964797505 km
+总的返回距离：155101.07819767683 km
+总的额外距离（工作结束后reposition）：54035.3637965359 km
+总的燃油消耗：135654.4468983581 L
+总的燃油成本：1085235.5751868647 RMB
+总的交付方量：69374.06 m3
+总的交付收入：24280921.0 RMB
+总的超时罚款：1058884.25 RMB
+总的连续浇筑罚款：380000 RMB
+总的司机加班支出：158425.46329520663 RMB
+总的厂站加班补偿支出：17806.72 RMB
+总的工地加班补偿支出：23325.83 RMB
+总的成本：2723677.8440376264 RMB，占收入的11.22%
+---------------------------实验开始------------------------------
+Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Follow', reposition_method='Retrace', env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1.5, overtime_pay_for_station_per_hour=200, overtime_pay_for_project_per_hour=300, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
+厂站初始车数量：15，生产线数量：4
+Dispatch method: Follow, Reposition method: Retrace
+以下是路程指标：
+总的过去距离：143880.349186758 km
+总的返回距离：143880.34918675805 km
+总的额外距离（工作结束后reposition）：0 km
+总的燃油消耗：115120.55434940639 L
+总的燃油成本：920964.4347952511 RMB
+总的交付方量：69374.06 m3
+总的交付收入：24280921.0 RMB
+总的超时罚款：1094731.5 RMB
+总的连续浇筑罚款：810000 RMB
+总的司机加班支出：0 RMB
+总的厂站加班补偿支出：14922.33 RMB
+总的工地加班补偿支出：22444.25 RMB
+总的成本：2863062.5181285846 RMB，占收入的11.79%
