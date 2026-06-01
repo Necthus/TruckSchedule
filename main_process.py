@@ -144,8 +144,9 @@ while chosen_day <= EXPERIMENT_END_DATE.date():
 
             for i in range(current_order.n_need):
 
-                select_sid,select_truck = dispatch_agent.select_a_station_and_a_truck(current_order,available_sids,env)
-                new_dispatch = Dispatch(current_order.oid,current_order.pid,select_sid,select_truck,env.current_time,select_sid)
+                select_sid = dispatch_agent.select_a_station(current_order, available_sids, env)
+                new_dispatch = Dispatch(current_order.oid, current_order.pid, select_sid, env.current_time)
+                new_dispatch.is_first_dispatch = (i == 0)
 
                 # 不插入iter了 直接派送
                 # env.dispatch_iter.insert(new_dispatch)
@@ -175,7 +176,6 @@ while chosen_day <= EXPERIMENT_END_DATE.date():
 
 
 
-    # env.reposition_all_trucks_to_its_origin_station()
     env.record_site_overtime()
 
 env.print_result()

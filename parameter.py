@@ -55,10 +55,16 @@ OIL_PRICE = 8 # 每升油的价格（单位：元/升）
 
 CONCRETE_REVENUE_PER_FANG = 350 # 每方混凝土的收入
 
-OVERTIME_PAY_FOR_DRIVER_PER_MINUTE = 1.5 # 司机加班每分钟的工资（单位：元/分钟）
+OVERTIME_PAY_FOR_DRIVER_PER_MINUTE = 1 # 司机加班每分钟的工资（单位：元/分钟）
 
-OVERTIME_PAY_FOR_STATION_PER_MINUTE = 3.33 # 厂站加班每分钟的补偿（单位：元/分钟）
-OVERTIME_PAY_FOR_PROJECT_PER_MINUTE = 5.0 # 工地加班每分钟的补偿（单位：元/分钟）
+
+
+
+
+
+
+OVERTIME_PAY_FOR_STATION_PER_MINUTE = 20*OVERTIME_PAY_FOR_DRIVER_PER_MINUTE # 厂站加班每分钟的补偿（单位：元/分钟）
+OVERTIME_PAY_FOR_PROJECT_PER_MINUTE = 20*OVERTIME_PAY_FOR_DRIVER_PER_MINUTE # 工地加班每分钟的补偿（单位：元/分钟）
 
 
 # 初始化环境参数

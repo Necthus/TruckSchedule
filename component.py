@@ -24,23 +24,20 @@ class Truck:
     
     id_count = 0
     
-    def __init__(self,oid,origin_sid,from_sid,to_pid,ret_sid) -> None:
+    def __init__(self, oid, from_sid, to_pid, ret_sid) -> None:
         
         self.id = Truck.id_count
         
-        Truck.id_count+=1
-        # 车辆服务的订单
+        Truck.id_count += 1
         self.oid = oid
-        
-        self.origin_sid = origin_sid
-
         self.from_sid = from_sid
         self.to_pid = to_pid
         self.ret_sid = ret_sid
         
         self.state = TruckState.Free
         self.left_time = 0
-        
+        self.is_first_dispatch = False
+
 class TruckIterator:
     def __init__(self) -> None:
         
@@ -129,15 +126,9 @@ class Station:
 
         self.truck_num = self.init_truck_num
         
-        # truck list ,each item is a sid representing a truck (its born sid)
-        self.truck_list:List = [self.sid]*self.truck_num
-        
         self.product_line = ProductionLine(STATION_PRODUCTION_LINE_SIZE)
         
             
-        # 被调度回来的车，回来+1，调度走-1
-        self.return_num = 0 
-        self.predict_return_list = []
         self.dispatch_record = []
         
         self.return_time_list = []
@@ -150,59 +141,59 @@ class Station:
         self.unsolved_dispatch :List[Dispatch]= []
 
         self.last_working_time = None
+
+        self.loading_trucks :List[Truck]= []
+
         
         
     def have_truck(self):
         return self.truck_num>0
     
-    def dispatch_truck(self,oid,pid,current_time,trucks_origin_sid=None):
-        
-        # truck_origin_sid 代表派出车辆时，选哪个车辆
-        
-        if self.truck_num<=0:
-            
-            return None,-1
-        
-        else:
-            
-            if trucks_origin_sid is None:
-                trucks_origin_sid = np.random.choice(self.truck_list)
-            
-            if trucks_origin_sid not in self.truck_list:
-                # 说明选的车不在这个站了，强制选一个
-                trucks_origin_sid = np.random.choice(self.truck_list)    
-                
-                
-            self.truck_list.remove(trucks_origin_sid)    
+    def dispatch_truck(self, oid, pid, current_time, is_first_dispatch=False):
 
-            truck = Truck(oid,origin_sid=trucks_origin_sid,from_sid=self.sid,to_pid=pid,ret_sid=self.sid)
-            
-            
-            truck.state = TruckState.Load
-            wait_time = self.product_line.add_truck_waiting()
-            truck.left_time = wait_time
-            self.dispatch_record.append(current_time)
-            self.last_working_time = current_time
-            
-            # 这代表当前车辆数大于回来的车辆，不是回来的功劳
-            if self.truck_num>self.return_num:
-                self.truck_num-=1
-                return truck,0
-            # 这代表当前车辆数等于回来的车辆，是回来的功劳
-            else:
-                self.truck_num-=1
-                self.return_num-=1
-                return truck,1
-            
-    def receive_truck(self,truck:Truck):
-        self.return_num+=1
-        self.truck_num+=1
-        # 删除第一个返回时间，作为到达
+        if self.truck_num <= 0:
+            return None
+
+        self.truck_num -= 1
+        truck = Truck(oid, from_sid=self.sid, to_pid=pid, ret_sid=self.sid)
+
+        truck.state = TruckState.Load
+        truck.is_first_dispatch = is_first_dispatch
+        wait_time = self.product_line.add_truck_waiting()
+        truck.left_time = wait_time
+        self.dispatch_record.append(current_time)
+        self.last_working_time = current_time
+
+        self.loading_trucks.append(truck)
+
+        if is_first_dispatch:
+            self._reorder_loading_queue(truck)
+
+        return truck
+
+    def _reorder_loading_queue(self, new_truck):
+        """首车插队：新到的首车与生产线上最早的非首车交换oid/pid"""
+        # 找到所有非首车的Loading车辆
+        non_first = [t for t in self.loading_trucks if not t.is_first_dispatch]
+        if not non_first:
+            return
+
+        # 找到left_time最小的非首车（最早出生产线）
+        earliest = min(non_first, key=lambda t: t.left_time)
+
+        # 新车的left_time如果更小，说明已经排在最前，不需要交换
+        if new_truck.left_time < earliest.left_time:
+            return
+
+        # 交换oid和to_pid，以及is_first_dispatch标记
+        new_truck.oid, earliest.oid = earliest.oid, new_truck.oid
+        new_truck.to_pid, earliest.to_pid = earliest.to_pid, new_truck.to_pid
+        new_truck.is_first_dispatch, earliest.is_first_dispatch = earliest.is_first_dispatch, new_truck.is_first_dispatch
+
+    def receive_truck(self, truck: Truck):
+        self.truck_num += 1
         self.return_time_list.pop(0)
-        
-        self.truck_list.append(truck.origin_sid)
-        
-        
+
     def step_time(self,time):
         self.product_line.step_time(time)
         self.return_time_list = [max(t - time, 0) for t in self.return_time_list]
@@ -219,29 +210,27 @@ class Station:
         
         else:
             index = -1
-            
-        return len(self.dispatch_record)-1-index 
-    
-    
+
+        return len(self.dispatch_record)-1-index
+
+
     def count_future_dispatch_given_range(self, current_time, time_range):
-        
+
         # 计算结束时间
         end_time = current_time + datetime.timedelta(minutes=time_range)
-        
+
         # 使用 bisect 找到开始时间和结束时间的索引
         start_index = bisect_left(self.arrange_dispatch, current_time)
         end_index = bisect_right(self.arrange_dispatch, end_time)
-        
-        # 统计范围内的元素数量
-        return end_index - start_index   
 
-    
-    
+        # 统计范围内的元素数量
+        return end_index - start_index
+
+
     def add_return_truck(self,return_time):
-        
+
         bisect.insort(self.return_time_list,return_time)
-        
-        
+
     def get_next_return_time(self):
         
         if self.return_time_list:
@@ -394,16 +383,13 @@ class OrderIterator:
     
     
 class Dispatch:
-    def __init__(self,oid,pid,from_sid,from_sid_select_truck,dispatch_time,ret_sid):
-        self.oid = oid  # 负责的订单编号
-        self.pid = pid # 送往的工地（项目）编号
-        self.from_sid = from_sid # 从哪一个厂站出发
-        
-        self.from_sid_select_truck = from_sid_select_truck
-        
-        self.dispatch_time :datetime.datetime = dispatch_time # 派出时间（不一定是实际离开时间，因为先要在生产线上装货）
-        self.real_dispatch_time :datetime.datetime = None # 实际离开时间(Dispatch是计划的，不一定能顺利派出)
-        self.ret_sid = ret_sid # 浇筑完，要返回哪一个厂站
+    def __init__(self, oid, pid, from_sid, dispatch_time):
+        self.oid = oid
+        self.pid = pid
+        self.from_sid = from_sid
+        self.dispatch_time: datetime.datetime = dispatch_time
+        self.real_dispatch_time: datetime.datetime = None
+        self.is_first_dispatch = False
 
 
 class DispatchIterator:

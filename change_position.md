@@ -1,0 +1,7 @@
+现在需要你新增一下一个station发车队列，可以自动更换订单的逻辑。
+
+
+当添加新的车到厂站时，因为product line有限，将会进行流水线的等待。但是，在我们的问题中，每个订单（对应一些商砼，可能需要多次运输，即多个dispatch和truck）中的第一次运输是很关键的，因为这会产生超时罚款。所以，在Dispatch的class中新增字段，是否订单的第一个dispatch，在 simluator中的self.derive_plan_orders_dispatches需要更改，以及即时订单agent制定dispatch时也要更改。
+
+
+接着，当dispatch执行，准备发车送上流水线时，执行这个逻辑：检查新到的dispatch是否是订单的第一个dispatch，如果是的话，新产生的Truck将尽量靠前，和Productline上第一个其余订单，且不是第一个dispatch的Truck交换oid以及pid（以这样简单的方式代表插队）。这需要你额外使每个Station多一个记录字段，当有Truck在该厂站处于Loading状态时，加入这个记录（可以是字典或者列表等），以便可以追踪到该Truck实例。这样，当新的dispatch来的时候，可以使得Truck进行pid和oid的交换，从而改变排队次序，使得代表订单的第一辆车尽量靠前（通过lefttime进行识别，但不插到其余订单的第一辆车前面）

@@ -73,7 +73,8 @@ class Environment:
 
             for i in range(truck_need):
                 dispatch_time = order_time - manual_advance_time
-                new_dispatch = Dispatch(order.oid,order.pid,chosen_station,chosen_station,dispatch_time,chosen_station)
+                new_dispatch = Dispatch(order.oid, order.pid, chosen_station, dispatch_time)
+                new_dispatch.is_first_dispatch = (i == 0)
                 dispatches.append(new_dispatch)
 
         return dispatches
@@ -152,14 +153,10 @@ class Environment:
 
         self.go_distance = 0
         self.return_distance = 0
-        self.extra_distance = 0
-
         self.fuel_consumption = 0
 
         self.discontinuity_penalty = 0
         self.overtime_penalty = 0
-
-        self.extra_driver_time_cost = 0
 
         self.station_overtime_cost = 0
         self.project_overtime_cost = 0
@@ -254,38 +251,26 @@ class Environment:
         return True
 
 
-    def execute_single_dispatch(self,dispatch:Dispatch):
+    def execute_single_dispatch(self, dispatch: Dispatch):
 
-        # 该订单的编号
         oid = dispatch.oid
 
-        new_truck,ret = self.stations[dispatch.from_sid].dispatch_truck(oid,dispatch.pid,self.current_time,dispatch.from_sid_select_truck)
+        new_truck = self.stations[dispatch.from_sid].dispatch_truck(oid, dispatch.pid, self.current_time, dispatch.is_first_dispatch)
 
-        # 如果发车不成功
-        if new_truck == None:
-            # 返回失败
+        if new_truck is None:
             return False
-        # 如果发车成功
         else:
-            # 首先把发出的车放到队列里面跑
-            new_truck.ret_sid = dispatch.ret_sid
+            new_truck.ret_sid = dispatch.from_sid
             self.truck_iter.insert_in_order(new_truck)
             dispatch.real_dispatch_time = self.current_time
-            # 订单已经派出+1
-            self.not_fully_dispatch_orders[oid].n_already_dispatched+=1
-            assert self.not_fully_dispatch_orders[oid].n_already_dispatched<=self.not_fully_dispatch_orders[oid].n_need
-            # 记录一下工地的最新联系的厂站
-            self.project_lastest_connect_station[dispatch.pid]=dispatch.from_sid
+            self.not_fully_dispatch_orders[oid].n_already_dispatched += 1
+            assert self.not_fully_dispatch_orders[oid].n_already_dispatched <= self.not_fully_dispatch_orders[oid].n_need
+            self.project_lastest_connect_station[dispatch.pid] = dispatch.from_sid
 
-            # 如果车辆全部发出
             if self.not_fully_dispatch_orders[oid].n_already_dispatched == self.not_fully_dispatch_orders[oid].n_need:
-                # 从unscheduled里面删除
                 del self.not_fully_dispatch_orders[oid]
 
-            # 返回成功
             return True
-
-
 
     def execute_unsolved_dispatch(self):
 
@@ -307,7 +292,6 @@ class Environment:
         if not self.unsolved_dispatch:
             return
 
-        # 统计每个厂站还需要派出的车辆数
         needed_trucks = {}
         for d in self.unsolved_dispatch:
             sid = d.from_sid
@@ -321,7 +305,6 @@ class Environment:
             if shortage <= 0:
                 continue
 
-            # 找附近有车的厂站
             candidates = []
             for other_sid, other_s in self.stations.items():
                 if other_sid == sid:
@@ -342,18 +325,8 @@ class Environment:
                 transfer_count = min(still_need, available)
                 still_need -= transfer_count
 
-                # 调车：从附近厂站转运车辆到目标厂站
                 other_s.truck_num -= transfer_count
                 s.truck_num += transfer_count
-                for _ in range(transfer_count):
-                    if other_s.truck_list:
-                        truck_origin = other_s.truck_list.pop(0)
-                        s.truck_list.append(truck_origin)
-                    else:
-                        s.truck_list.append(other_sid)
-
-                self.extra_distance += dist * transfer_count
-                self.fuel_consumption += dist * transfer_count * EMPTY_RETURN_FUEL_CONSUMPTION_PER_KM
 
                 max_transfer_time = max(max_transfer_time, travel_time)
 
@@ -361,7 +334,6 @@ class Environment:
             self.time_pass(max_transfer_time)
 
         self.execute_unsolved_dispatch()
-
 
     def must_reposition_stations(self,stations_features):
 
@@ -430,6 +402,10 @@ class Environment:
         elif truck.state == TruckState.Load:
 
             truck.state = TruckState.Transport
+            # 从厂站的loading队列中移除
+            loading_station = self.stations[truck.from_sid]
+            if truck in loading_station.loading_trucks:
+                loading_station.loading_trucks.remove(truck)
             dist = self.interaction[truck.to_pid][truck.from_sid]
             truck.left_time = round(dist/TRUCK_SPEED)
 
@@ -611,8 +587,8 @@ class Environment:
 
                     self.orders.append(Order(new_id_str,project_id,order_quantity,ticket_count,pouring_type,deliver_time))
 
-                    origin_sid = row['station_id']
-                    new_sid = Station.id_map[origin_sid]
+                    original_sid = row['station_id']
+                    new_sid = Station.id_map[original_sid]
                     self.origin_dispatch[new_id_str]=new_sid
 
                     if project_id not in self.origin_cooperation:
@@ -649,27 +625,6 @@ class Environment:
 
 
     # 有个run_given_day，放到backup中了
-
-    def reposition_all_trucks_to_its_origin_station(self):
-
-        for sid,station in self.stations.items():
-            current_station_sid = sid
-
-            for truck in station.truck_list:
-
-                truck_origin_sid = truck
-
-                if truck_origin_sid == current_station_sid:
-                    continue
-                dist = self.station_dist_matrix[(current_station_sid,truck_origin_sid)]
-
-                travel_time = dist/TRUCK_SPEED
-
-                self.workover_reposition_record.append((current_station_sid,truck_origin_sid,dist,travel_time))
-
-                self.extra_distance+=dist
-
-                self.extra_driver_time_cost+=travel_time*OVERTIME_PAY_FOR_DRIVER_PER_MINUTE
 
     def record_site_overtime(self):
         """每天结束后，计算各厂站和各工地超过ORDER_END_HOUR工作的加班补偿"""
@@ -740,9 +695,8 @@ class Environment:
         print('以下是路程指标：')
         print(f'总的过去距离：{self.go_distance} km')
         print(f'总的返回距离：{self.return_distance} km')
-        print(f'总的额外距离（工作结束后reposition）：{self.extra_distance} km')
 
-        self.fuel_consumption += self.go_distance*LOAD_GO_FUEL_CONSUMPTION_PER_KM+self.return_distance*EMPTY_RETURN_FUEL_CONSUMPTION_PER_KM+self.extra_distance*EMPTY_RETURN_FUEL_CONSUMPTION_PER_KM
+        self.fuel_consumption += self.go_distance * LOAD_GO_FUEL_CONSUMPTION_PER_KM + self.return_distance * EMPTY_RETURN_FUEL_CONSUMPTION_PER_KM
         print(f'总的燃油消耗：{self.fuel_consumption} L')
 
         cost = self.fuel_consumption*OIL_PRICE
@@ -755,12 +709,11 @@ class Environment:
 
         print(f'总的超时罚款：{self.overtime_penalty} RMB')
         print(f'总的连续浇筑罚款：{self.discontinuity_penalty} RMB')
-        print(f'总的司机加班支出：{self.extra_driver_time_cost} RMB')
         print(f'总的厂站加班补偿支出：{self.station_overtime_cost:.2f} RMB')
         print(f'总的工地加班补偿支出：{self.project_overtime_cost:.2f} RMB')
 
 
-        total_cost = cost+self.overtime_penalty+self.discontinuity_penalty+self.extra_driver_time_cost+self.station_overtime_cost+self.project_overtime_cost
+        total_cost = cost + self.overtime_penalty + self.discontinuity_penalty + self.station_overtime_cost + self.project_overtime_cost
         percent = total_cost/self.revenue
         print(f'总的成本：{total_cost} RMB，占收入的{percent*100:.2f}%')
 
