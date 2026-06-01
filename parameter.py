@@ -9,8 +9,33 @@ GPU_ID = 0
 
 # 方法参数
 
-DISPATCH_METHOD = 'Fastest' # 派单方法 可选项：'fastest'（优先派送最快的车） 'random'（随机派送） 'distance'（优先派送距离最近的车）
-REPOSITION_METHOD = 'Retrace' # 车辆调度方法 可选项：'Urgent'（优先调度最紧急的车） 'Retrace'（优先调度回到原站点的车）
+DISPATCH_METHOD = 'Fastest' # 派单方法 可选项：'Fastest'（优先派送最快的车） 'Follow'（跟随上次选择的厂站）
+REPOSITION_METHOD = 'Retrace' # 车辆调度方法 可选项：'Urgent' 'Retrace' 'RL' 'DispatchAwareRL'
+
+# 训练/测试模式参数
+REPOSITION_TRAIN_MODE = False  # 是否训练Reposition Agent
+DISPATCH_TRAIN_MODE = False    # 是否训练Dispatch Agent（预留）
+TRAIN_TEST_SPLIT_RATIO = 0.8   # 训练集比例，剩余为测试集
+
+# 测试重复次数
+TEST_REPEAT_NUM = 1
+
+# RL算法参数
+RL_LR = 0.001           # 学习率
+RL_GAMMA = 0.99         # 折扣因子
+RL_EPSILON = 0.1        # epsilon-greedy探索率
+RL_EPSILON_MIN = 0.01   # 最小探索率
+RL_EPSILON_DECAY = 0.999  # epsilon衰减率
+
+# RL训练参数
+REPOSITION_EPISODE_NUM = 2000   # 训练episode数（仅训练模式）
+SAVE_MODEL_FREQUENCY = 10       # 每隔多少episode保存一次模型
+MODEL_SAVE_DIR = 'model'
+MODEL_REPOSITION_SAVE_DIR = 'model/reposition/'
+MODEL_DISPATCH_SAVE_DIR = 'model/dispatch/'
+
+# 感知层参数
+PERCEPTION_ALPHA = 0.99  # 时间衰减因子，用于分配负奖励
 
 # 地球参数
 

@@ -1,5 +1,6 @@
 
 import datetime
+import bisect
 from toolkit.geocal import *
 from component import *
 import numpy as np
@@ -12,6 +13,7 @@ class Environment:
 
     def __init__(self) -> None:
 
+        self.i_episode = 0  # 当前episode编号
 
         self.projects :dict[str,Project]= {}
         self.stations :dict[str,Station]= {}
@@ -118,6 +120,11 @@ class Environment:
 
         # 获取对计划的dispatch结果
         plan_orders_dispatches :List[Dispatch] = self.derive_plan_orders_dispatches(plan_orders)
+
+        # 将每个dispatch的预定时间写入对应厂站的arrange_dispatch
+        for dispatch in plan_orders_dispatches:
+            sid = dispatch.from_sid
+            bisect.insort(self.stations[sid].arrange_dispatch, dispatch.dispatch_time)
 
         self.open_sid_set = set()
 
@@ -714,8 +721,11 @@ class Environment:
 
 
         total_cost = cost + self.overtime_penalty + self.discontinuity_penalty + self.station_overtime_cost + self.project_overtime_cost
-        percent = total_cost/self.revenue
-        print(f'总的成本：{total_cost} RMB，占收入的{percent*100:.2f}%')
+        if self.revenue > 0:
+            percent = total_cost/self.revenue
+            print(f'总的成本：{total_cost} RMB，占收入的{percent*100:.2f}%')
+        else:
+            print(f'总的成本：{total_cost} RMB')
 
     def print_result(self):
 

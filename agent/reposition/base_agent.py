@@ -1,28 +1,31 @@
-
-
-
-from abc import ABC,abstractmethod
+from abc import ABC, abstractmethod
 from simulator import Environment
-
 from component import *
 
 
 class BaseRepositionAgent(ABC):
-	def __init__(self):
-		pass
+    """重定位Agent基类，定义统一的训练/测试生命周期接口"""
 
-	def select_reposition_station(self,current_pid,truck:Truck,avaliable_sids,env:Environment):
-		"""
-		选择一个厂站进行重新定位
-		:param current_project: 当前项目的相关信息（如位置、需求等）
-		:param truck: 当前卡车信息
-		:param available_stations: 可供选择的厂站列表
-		:param env: 当前环境状态（如交通状况、天气等）
-		:return: 选择的厂站ID
-		"""
-  
-		pass
-		
-  
-  
-	
+    def __init__(self, train_mode: bool = False):
+        self.train_mode = train_mode
+
+    @abstractmethod
+    def select_reposition_station(self, current_pid, truck: Truck, available_sids, env: Environment):
+        """选择一个厂站进行重新定位"""
+        pass
+
+    def model_initialization(self, load_episode=-1) -> int:
+        """模型初始化，返回起始episode编号"""
+        return 0
+
+    def before_every_episode(self) -> None:
+        """每个episode开始前的准备工作"""
+        pass
+
+    def after_every_episode(self, env: Environment) -> None:
+        """每个episode结束后的收尾工作"""
+        pass
+
+    def after_every_step(self, env: Environment) -> None:
+        """每个步骤结束后的收尾工作"""
+        pass

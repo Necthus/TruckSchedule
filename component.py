@@ -125,24 +125,27 @@ class Station:
     def reset(self):
 
         self.truck_num = self.init_truck_num
-        
+
         self.product_line = ProductionLine(STATION_PRODUCTION_LINE_SIZE)
-        
-            
+
+
         self.dispatch_record = []
-        
+
         self.return_time_list = []
         # 最近一次服务的工地
         self.recent_serve_pid = 0
-        
+
         self.arrange_dispatch = []
-        
-        
+
+
         self.unsolved_dispatch :List[Dispatch]= []
 
         self.last_working_time = None
 
         self.loading_trucks :List[Truck]= []
+
+        self.returned_truck_count = 0  # 累计返回的车辆数（每天重置）
+        self.dispatched_from_returned = 0  # 从返回车辆中派出的次数
 
         
         
@@ -169,7 +172,17 @@ class Station:
         if is_first_dispatch:
             self._reorder_loading_queue(truck)
 
+        # 记录本车是否来源于之前的reposition
+        truck.from_reposition = self.returned_truck_count > 0
+        if truck.from_reposition:
+            self.dispatched_from_returned += 1
+
         return truck
+
+    def dispatch_came_from_reposition(self):
+        """判断当前可用车辆是否来源于之前的reposition。
+        由于dispatch_truck已先将truck_num-1，所以比较returned_truck_count和truck_num+1。"""
+        return self.returned_truck_count > 0 and self.returned_truck_count >= (self.truck_num + 1)
 
     def _reorder_loading_queue(self, new_truck):
         """首车插队：新到的首车与生产线上最早的非首车交换oid/pid"""
@@ -192,6 +205,7 @@ class Station:
 
     def receive_truck(self, truck: Truck):
         self.truck_num += 1
+        self.returned_truck_count += 1
         self.return_time_list.pop(0)
 
     def step_time(self,time):

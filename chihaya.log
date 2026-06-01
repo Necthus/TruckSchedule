@@ -1,72 +1,200 @@
----------------------------实验开始------------------------------
-Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Fastest', reposition_method='Urgent', env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1, overtime_pay_for_station_per_minute=20, overtime_pay_for_project_per_minute=20, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
-厂站初始车数量：15，生产线数量：4
-Dispatch method: Fastest, Reposition method: Urgent
+[2026-06-01 19:29:54] ---------------------------实验开始------------------------------
+[2026-06-01 19:29:54] Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Fastest', reposition_method='Urgent', reposition_train_mode=False, dispatch_train_mode=False, train_test_split_ratio=0.8, test_repeat_num=1, rl_lr=0.001, rl_gamma=0.99, rl_epsilon=0.1, rl_epsilon_min=0.01, rl_epsilon_decay=0.999, reposition_episode_num=2000, save_model_frequency=10, model_save_dir='model', model_reposition_save_dir='model/reposition/', model_dispatch_save_dir='model/dispatch/', perception_alpha=0.99, env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1, overtime_pay_for_station_per_minute=20, overtime_pay_for_project_per_minute=20, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
+[2026-06-01 19:29:54] 厂站初始车数量：15，生产线数量：4
+[2026-06-01 19:29:54] Dispatch method: Fastest, Reposition method: Urgent
+[2026-06-01 19:29:54] 总日期数: 15, 训练日期: 12, 测试日期: 3
+[2026-06-01 19:29:54] 训练集日期范围: 2024-05-01 ~ 2024-05-12
+[2026-06-01 19:29:54] 测试集日期范围: 2024-05-13 ~ 2024-05-15
+[2026-06-01 19:29:54] ---------------------------测试模式------------------------------
+[2026-06-01 19:29:54] 
+[测试 第1轮 第1天] 日期: 2024-05-01
+[2026-06-01 19:29:54] 
+[测试 第1轮 第2天] 日期: 2024-05-02
+[2026-06-01 19:29:54] 
+[测试 第1轮 第3天] 日期: 2024-05-03
+[2026-06-01 19:29:54] 
+[测试 第1轮 第4天] 日期: 2024-05-04
+[2026-06-01 19:29:54] 
+[测试 第1轮 第5天] 日期: 2024-05-05
+[2026-06-01 19:29:54] 
+[测试 第1轮 第6天] 日期: 2024-05-06
+[2026-06-01 19:29:54] 
+[测试 第1轮 第7天] 日期: 2024-05-07
+[2026-06-01 19:29:55] 
+[测试 第1轮 第8天] 日期: 2024-05-08
+[2026-06-01 19:29:55] 
+[测试 第1轮 第9天] 日期: 2024-05-09
+[2026-06-01 19:29:55] 
+[测试 第1轮 第10天] 日期: 2024-05-10
+[2026-06-01 19:29:55] 
+[测试 第1轮 第11天] 日期: 2024-05-11
+[2026-06-01 19:29:55] 
+[测试 第1轮 第12天] 日期: 2024-05-12
+[2026-06-01 19:29:55] 
+[测试 第1轮 第13天] 日期: 2024-05-13
+[2026-06-01 19:29:56] 
+[测试 第1轮 第14天] 日期: 2024-05-14
+[2026-06-01 19:29:56] 
+[测试 第1轮 第15天] 日期: 2024-05-15
 以下是路程指标：
 总的过去距离：128612.38009553833 km
 总的返回距离：148515.2791651327 km
-总的额外距离（工作结束后reposition）：640.7863491925938 km
-总的燃油消耗：109302.96727349119 L
-总的燃油成本：874423.7381879295 RMB
+总的燃油消耗：108918.49546397563 L
+总的燃油成本：871347.9637118051 RMB
 总的交付方量：69374.06 m3
 总的交付收入：24280921.0 RMB
 总的超时罚款：193018.25 RMB
 总的连续浇筑罚款：205000 RMB
-总的司机加班支出：0 RMB
 总的厂站加班补偿支出：90217.00 RMB
 总的工地加班补偿支出：46020.33 RMB
-总的成本：1408679.3215212629 RMB，占收入的5.80%
----------------------------实验开始------------------------------
-Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Fastest', reposition_method='Retrace', env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1, overtime_pay_for_station_per_minute=20, overtime_pay_for_project_per_minute=20, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
-厂站初始车数量：15，生产线数量：4
-Dispatch method: Fastest, Reposition method: Retrace
+总的成本：1405603.5470451384 RMB，占收入的5.79%
+[2026-06-01 19:29:59] ---------------------------实验开始------------------------------
+[2026-06-01 19:29:59] Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Fastest', reposition_method='Retrace', reposition_train_mode=False, dispatch_train_mode=False, train_test_split_ratio=0.8, test_repeat_num=1, rl_lr=0.001, rl_gamma=0.99, rl_epsilon=0.1, rl_epsilon_min=0.01, rl_epsilon_decay=0.999, reposition_episode_num=2000, save_model_frequency=10, model_save_dir='model', model_reposition_save_dir='model/reposition/', model_dispatch_save_dir='model/dispatch/', perception_alpha=0.99, env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1, overtime_pay_for_station_per_minute=20, overtime_pay_for_project_per_minute=20, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
+[2026-06-01 19:29:59] 厂站初始车数量：15，生产线数量：4
+[2026-06-01 19:29:59] Dispatch method: Fastest, Reposition method: Retrace
+[2026-06-01 19:29:59] 总日期数: 15, 训练日期: 12, 测试日期: 3
+[2026-06-01 19:29:59] 训练集日期范围: 2024-05-01 ~ 2024-05-12
+[2026-06-01 19:29:59] 测试集日期范围: 2024-05-13 ~ 2024-05-15
+[2026-06-01 19:29:59] ---------------------------测试模式------------------------------
+[2026-06-01 19:29:59] 
+[测试 第1轮 第1天] 日期: 2024-05-01
+[2026-06-01 19:29:59] 
+[测试 第1轮 第2天] 日期: 2024-05-02
+[2026-06-01 19:29:59] 
+[测试 第1轮 第3天] 日期: 2024-05-03
+[2026-06-01 19:29:59] 
+[测试 第1轮 第4天] 日期: 2024-05-04
+[2026-06-01 19:29:59] 
+[测试 第1轮 第5天] 日期: 2024-05-05
+[2026-06-01 19:29:59] 
+[测试 第1轮 第6天] 日期: 2024-05-06
+[2026-06-01 19:30:00] 
+[测试 第1轮 第7天] 日期: 2024-05-07
+[2026-06-01 19:30:00] 
+[测试 第1轮 第8天] 日期: 2024-05-08
+[2026-06-01 19:30:00] 
+[测试 第1轮 第9天] 日期: 2024-05-09
+[2026-06-01 19:30:00] 
+[测试 第1轮 第10天] 日期: 2024-05-10
+[2026-06-01 19:30:00] 
+[测试 第1轮 第11天] 日期: 2024-05-11
+[2026-06-01 19:30:00] 
+[测试 第1轮 第12天] 日期: 2024-05-12
+[2026-06-01 19:30:01] 
+[测试 第1轮 第13天] 日期: 2024-05-13
+[2026-06-01 19:30:01] 
+[测试 第1轮 第14天] 日期: 2024-05-14
+[2026-06-01 19:30:01] 
+[测试 第1轮 第15天] 日期: 2024-05-15
 以下是路程指标：
 总的过去距离：128479.30761040909 km
 总的返回距离：128479.30761040909 km
-总的额外距离（工作结束后reposition）：0 km
 总的燃油消耗：102839.57608832727 L
 总的燃油成本：822716.6087066182 RMB
 总的交付方量：69374.06 m3
 总的交付收入：24280921.0 RMB
 总的超时罚款：274600.25 RMB
 总的连续浇筑罚款：645000 RMB
-总的司机加班支出：0 RMB
 总的厂站加班补偿支出：81153.33 RMB
 总的工地加班补偿支出：37020.33 RMB
 总的成本：1860490.5253732847 RMB，占收入的7.66%
----------------------------实验开始------------------------------
-Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Follow', reposition_method='Urgent', env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1, overtime_pay_for_station_per_minute=20, overtime_pay_for_project_per_minute=20, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
-厂站初始车数量：15，生产线数量：4
-Dispatch method: Follow, Reposition method: Urgent
+[2026-06-01 19:30:04] ---------------------------实验开始------------------------------
+[2026-06-01 19:30:04] Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Follow', reposition_method='Urgent', reposition_train_mode=False, dispatch_train_mode=False, train_test_split_ratio=0.8, test_repeat_num=1, rl_lr=0.001, rl_gamma=0.99, rl_epsilon=0.1, rl_epsilon_min=0.01, rl_epsilon_decay=0.999, reposition_episode_num=2000, save_model_frequency=10, model_save_dir='model', model_reposition_save_dir='model/reposition/', model_dispatch_save_dir='model/dispatch/', perception_alpha=0.99, env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1, overtime_pay_for_station_per_minute=20, overtime_pay_for_project_per_minute=20, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
+[2026-06-01 19:30:04] 厂站初始车数量：15，生产线数量：4
+[2026-06-01 19:30:04] Dispatch method: Follow, Reposition method: Urgent
+[2026-06-01 19:30:04] 总日期数: 15, 训练日期: 12, 测试日期: 3
+[2026-06-01 19:30:04] 训练集日期范围: 2024-05-01 ~ 2024-05-12
+[2026-06-01 19:30:04] 测试集日期范围: 2024-05-13 ~ 2024-05-15
+[2026-06-01 19:30:04] ---------------------------测试模式------------------------------
+[2026-06-01 19:30:04] 
+[测试 第1轮 第1天] 日期: 2024-05-01
+[2026-06-01 19:30:04] 
+[测试 第1轮 第2天] 日期: 2024-05-02
+[2026-06-01 19:30:04] 
+[测试 第1轮 第3天] 日期: 2024-05-03
+[2026-06-01 19:30:04] 
+[测试 第1轮 第4天] 日期: 2024-05-04
+[2026-06-01 19:30:04] 
+[测试 第1轮 第5天] 日期: 2024-05-05
+[2026-06-01 19:30:04] 
+[测试 第1轮 第6天] 日期: 2024-05-06
+[2026-06-01 19:30:05] 
+[测试 第1轮 第7天] 日期: 2024-05-07
+[2026-06-01 19:30:05] 
+[测试 第1轮 第8天] 日期: 2024-05-08
+[2026-06-01 19:30:05] 
+[测试 第1轮 第9天] 日期: 2024-05-09
+[2026-06-01 19:30:05] 
+[测试 第1轮 第10天] 日期: 2024-05-10
+[2026-06-01 19:30:05] 
+[测试 第1轮 第11天] 日期: 2024-05-11
+[2026-06-01 19:30:05] 
+[测试 第1轮 第12天] 日期: 2024-05-12
+[2026-06-01 19:30:06] 
+[测试 第1轮 第13天] 日期: 2024-05-13
+[2026-06-01 19:30:06] 
+[测试 第1轮 第14天] 日期: 2024-05-14
+[2026-06-01 19:30:06] 
+[测试 第1轮 第15天] 日期: 2024-05-15
 以下是路程指标：
-总的过去距离：146424.3216224033 km
-总的返回距离：157297.01793196955 km
-总的额外距离（工作结束后reposition）：1314.5871526140195 km
-总的燃油消耗：121229.76848236093 L
-总的燃油成本：969838.1478588874 RMB
+总的过去距离：142896.9219344247 km
+总的返回距离：153327.40370015602 km
+总的燃油消耗：117495.00707725914 L
+总的燃油成本：939960.0566180731 RMB
 总的交付方量：69374.06 m3
 总的交付收入：24280921.0 RMB
-总的超时罚款：1495401.75 RMB
-总的连续浇筑罚款：485000 RMB
-总的司机加班支出：0 RMB
-总的厂站加班补偿支出：82762.67 RMB
-总的工地加班补偿支出：68988.33 RMB
-总的成本：3101990.8978588874 RMB，占收入的12.78%
----------------------------实验开始------------------------------
-Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Follow', reposition_method='Retrace', env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1, overtime_pay_for_station_per_minute=20, overtime_pay_for_project_per_minute=20, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
-厂站初始车数量：15，生产线数量：4
-Dispatch method: Follow, Reposition method: Retrace
+总的超时罚款：993595.75 RMB
+总的连续浇筑罚款：430000 RMB
+总的厂站加班补偿支出：109085.00 RMB
+总的工地加班补偿支出：81297.33 RMB
+总的成本：2553938.1399514065 RMB，占收入的10.52%
+[2026-06-01 19:30:09] ---------------------------实验开始------------------------------
+[2026-06-01 19:30:09] Namespace(seed=2333, magic_max_num=233333, gpu_id=0, dispatch_method='Follow', reposition_method='Retrace', reposition_train_mode=False, dispatch_train_mode=False, train_test_split_ratio=0.8, test_repeat_num=1, rl_lr=0.001, rl_gamma=0.99, rl_epsilon=0.1, rl_epsilon_min=0.01, rl_epsilon_decay=0.999, reposition_episode_num=2000, save_model_frequency=10, model_save_dir='model', model_reposition_save_dir='model/reposition/', model_dispatch_save_dir='model/dispatch/', perception_alpha=0.99, env_min_lat=22.4, env_max_lat=23.0, env_min_lon=113.7, env_max_lon=114.4, grid_size_km=1.0, km_per_degree_lat=111.0, km_per_degree_lon=102.40172792964334, ignore_instant_orders=False, only_keep_active_station=True, truck_speed=0.5, load_concrete_time=10, unload_concrete_time=5, load_go_fuel_consumption_per_km=0.5, empty_return_fuel_consumption_per_km=0.3, load_waiting_fuel_consumption_per_minute=0.1, oil_price=8, concrete_revenue_per_fang=350, overtime_pay_for_driver_per_minute=1, overtime_pay_for_station_per_minute=20, overtime_pay_for_project_per_minute=20, station_init_truck_num=15, station_production_line_size=4, order_start_hour=7, order_end_hour=20, experiment_start_date='2024-05-01', experiment_end_date='2024-05-15', with_origin_interaction=True)
+[2026-06-01 19:30:09] 厂站初始车数量：15，生产线数量：4
+[2026-06-01 19:30:09] Dispatch method: Follow, Reposition method: Retrace
+[2026-06-01 19:30:09] 总日期数: 15, 训练日期: 12, 测试日期: 3
+[2026-06-01 19:30:09] 训练集日期范围: 2024-05-01 ~ 2024-05-12
+[2026-06-01 19:30:09] 测试集日期范围: 2024-05-13 ~ 2024-05-15
+[2026-06-01 19:30:09] ---------------------------测试模式------------------------------
+[2026-06-01 19:30:09] 
+[测试 第1轮 第1天] 日期: 2024-05-01
+[2026-06-01 19:30:09] 
+[测试 第1轮 第2天] 日期: 2024-05-02
+[2026-06-01 19:30:09] 
+[测试 第1轮 第3天] 日期: 2024-05-03
+[2026-06-01 19:30:09] 
+[测试 第1轮 第4天] 日期: 2024-05-04
+[2026-06-01 19:30:09] 
+[测试 第1轮 第5天] 日期: 2024-05-05
+[2026-06-01 19:30:10] 
+[测试 第1轮 第6天] 日期: 2024-05-06
+[2026-06-01 19:30:10] 
+[测试 第1轮 第7天] 日期: 2024-05-07
+[2026-06-01 19:30:10] 
+[测试 第1轮 第8天] 日期: 2024-05-08
+[2026-06-01 19:30:10] 
+[测试 第1轮 第9天] 日期: 2024-05-09
+[2026-06-01 19:30:10] 
+[测试 第1轮 第10天] 日期: 2024-05-10
+[2026-06-01 19:30:10] 
+[测试 第1轮 第11天] 日期: 2024-05-11
+[2026-06-01 19:30:10] 
+[测试 第1轮 第12天] 日期: 2024-05-12
+[2026-06-01 19:30:11] 
+[测试 第1轮 第13天] 日期: 2024-05-13
+[2026-06-01 19:30:11] 
+[测试 第1轮 第14天] 日期: 2024-05-14
+[2026-06-01 19:30:11] 
+[测试 第1轮 第15天] 日期: 2024-05-15
 以下是路程指标：
-总的过去距离：144420.49382032402 km
-总的返回距离：144420.49382032402 km
-总的额外距离（工作结束后reposition）：0 km
-总的燃油消耗：115583.48672292587 L
-总的燃油成本：924667.8937834069 RMB
+总的过去距离：145954.1379901786 km
+总的返回距离：145954.1379901786 km
+总的燃油消耗：116808.33872547622 L
+总的燃油成本：934466.7098038098 RMB
 总的交付方量：69374.06 m3
 总的交付收入：24280921.0 RMB
-总的超时罚款：1360349.0 RMB
-总的连续浇筑罚款：750000 RMB
-总的司机加班支出：0 RMB
-总的厂站加班补偿支出：75829.33 RMB
-总的工地加班补偿支出：78146.67 RMB
-总的成本：3188992.893783407 RMB，占收入的13.13%
+总的超时罚款：1480942.25 RMB
+总的连续浇筑罚款：760000 RMB
+总的厂站加班补偿支出：77585.67 RMB
+总的工地加班补偿支出：96882.33 RMB
+总的成本：3349876.95980381 RMB，占收入的13.80%

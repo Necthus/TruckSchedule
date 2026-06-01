@@ -2,10 +2,12 @@
 
 __pycache__/
 *.pyc
-
+*.log
 
 data/
 
 result/
 
 MobRef/
+
+model/
