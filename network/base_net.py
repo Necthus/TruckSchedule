@@ -23,7 +23,7 @@ class MLP(nn.Module):
 class StationScoringNet(nn.Module):
     """为每个厂站打分，支持内部标准化（用于预训练权重与RL推理兼容）"""
 
-    def __init__(self, input_dim=7, hidden_dims=(64, 32), normalize=False):
+    def __init__(self, input_dim=8, hidden_dims=(64, 32), normalize=False):
         super().__init__()
         self.normalize = normalize
         if normalize:

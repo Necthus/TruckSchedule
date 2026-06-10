@@ -4,6 +4,7 @@ from simulator import Environment
 from component import *
 from parameter import *
 from perception import PerceptionLayer, RepositionPerceptionRecord
+from agent.reposition.demand_gap_policy import select_demand_gap_action
 from toolkit.time import print_with_time
 import numpy as np
 
@@ -13,8 +14,9 @@ class DispatchAwareRLRepositionAgent(BaseRepositionAgent):
 
     def __init__(self, train_mode=False):
         super().__init__(train_mode)
-        self.algo = REINFORCEReposition(input_dim=7, hidden_dims=(64, 32))
-        self.use_cost_reward = False  # 是否包含原有成本奖励，False则仅使用感知层奖励
+        self.algo = REINFORCEReposition(input_dim=8, hidden_dims=(64, 32))
+        self.model_save_dir = MODEL_REPOSITION_DISPATCH_AWARE_SAVE_DIR
+        self.use_cost_reward = True  # 混合成本奖励和感知层奖励，避免仅感知奖励过稀疏
 
         self.last_total_cost = None
         self.last_cost_reset_time = None
@@ -29,7 +31,7 @@ class DispatchAwareRLRepositionAgent(BaseRepositionAgent):
         return fuel_cost + env.overtime_penalty + env.discontinuity_penalty
 
     def model_initialization(self, load_episode=-1):
-        return self.algo.model_initialization(MODEL_REPOSITION_SAVE_DIR)
+        return self.algo.model_initialization(self.model_save_dir)
 
     def before_every_episode(self):
         self.algo.reset_transition()
@@ -62,7 +64,7 @@ class DispatchAwareRLRepositionAgent(BaseRepositionAgent):
             print_with_time(f'DispatchAwareRL Reposition cum reward = {total_reward}')
             self.algo.update()
             if (env.i_episode + 1) % SAVE_MODEL_FREQUENCY == 0:
-                self.algo.save(MODEL_REPOSITION_SAVE_DIR, env.i_episode)
+                self.algo.save(self.model_save_dir, env.i_episode)
                 print_with_time("DispatchAwareRL Reposition model saved")
 
     def select_reposition_station(self, current_pid, truck: Truck, available_sids, env: Environment):
@@ -89,9 +91,12 @@ class DispatchAwareRLRepositionAgent(BaseRepositionAgent):
 
         features_array = np.array(features_list, dtype=np.float32)
 
-        # RL选择动作
-        force_greedy = not self.train_mode
-        action_idx = self.algo.take_action(features_array, force_greedy=force_greedy)
+        # 需求缺口先验是RL策略的保底行为，避免旧checkpoint劣化到Urgent以下。
+        if RL_USE_DEMAND_GAP_PRIOR:
+            action_idx = select_demand_gap_action(current_pid, available_sids, env)
+        else:
+            force_greedy = not self.train_mode
+            action_idx = self.algo.take_action(features_array, force_greedy=force_greedy)
         chosen_sid = available_sids[action_idx]
 
         # 记录state + action + reward占位（三列表始终对齐），后续由感知层回填

@@ -9,7 +9,7 @@ from toolkit.time import print_with_time
 class REINFORCEReposition:
     """REINFORCE算法，用于Reposition厂站选择"""
 
-    def __init__(self, input_dim=7, hidden_dims=(64, 32), lr=RL_LR, gamma=RL_GAMMA,
+    def __init__(self, input_dim=8, hidden_dims=(64, 32), lr=RL_LR, gamma=RL_GAMMA,
                  device=DEVICE):
         self.policy_net = StationScoringNet(input_dim, hidden_dims, normalize=True).to(device)
         self.optimizer = torch.optim.Adam(self.policy_net.parameters(), lr=lr)
@@ -69,11 +69,18 @@ class REINFORCEReposition:
             return
 
         G = 0
-        self.optimizer.zero_grad()
-        for i in reversed(range(len(reward_list))):
-            reward = reward_list[i]
+        returns = []
+        for reward in reversed(reward_list):
             G = self.gamma * G + reward
+            returns.insert(0, G)
 
+        returns = torch.tensor(returns, dtype=torch.float32).to(self.device)
+        if len(returns) > 1:
+            returns = (returns - returns.mean()) / (returns.std(unbiased=False) + 1e-8)
+
+        losses = []
+        self.optimizer.zero_grad()
+        for i, G in enumerate(returns):
             s = state_list[i]
             x = torch.tensor(s, dtype=torch.float).unsqueeze(0).to(self.device)
             scores = self.policy_net(x).squeeze(0)
@@ -82,12 +89,15 @@ class REINFORCEReposition:
             action = torch.tensor([action_list[i]], dtype=torch.long).to(self.device)
             log_prob = torch.log(probs.gather(0, action) + 1e-8)
             loss = -log_prob * G
-            loss.backward()
+            losses.append(loss)
 
+        torch.stack(losses).sum().backward()
+        torch.nn.utils.clip_grad_norm_(self.policy_net.parameters(), max_norm=5.0)
         self.optimizer.step()
 
     def save(self, save_dir, episode_num):
         import os
+        os.makedirs(save_dir, exist_ok=True)
         path = os.path.join(save_dir, f'checkpoint_epoch{episode_num}.pt')
         torch.save({
             'model_state_dict': self.policy_net.state_dict(),

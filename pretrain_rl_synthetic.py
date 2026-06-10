@@ -8,14 +8,14 @@ import numpy as np
 import torch
 from torch import nn
 from network.base_net import StationScoringNet
-from parameter import DEVICE, MODEL_REPOSITION_SAVE_DIR
+from parameter import DEVICE, MODEL_REPOSITION_RL_SAVE_DIR
 from toolkit.time import print_with_time
 import os
 
 # ── 参数 ──────────────────────────────────────────────
 NUM_SAMPLES = 20000        # 人造样本数
 MAX_STATIONS = 20          # 每次最多可选厂站数
-INPUT_DIM = 7
+INPUT_DIM = 8
 HIDDEN_DIMS = (64, 32)
 EPOCHS = 500
 BATCH_SIZE = 256
@@ -39,14 +39,15 @@ def generate_synthetic_data(n=NUM_SAMPLES, max_stations=MAX_STATIONS):
         distance = np.random.uniform(1, 30, size=num_stations).astype(np.float32)
         dispatch_count = np.random.poisson(2, size=num_stations).astype(np.float32)
         next_return = np.random.uniform(0, 240, size=num_stations).astype(np.float32)
+        returning_count = np.random.poisson(1, size=num_stations).astype(np.float32)
         future_30 = np.random.poisson(0.5, size=num_stations).astype(np.float32)
         future_60 = np.random.poisson(1, size=num_stations).astype(np.float32)
         future_120 = np.random.poisson(2, size=num_stations).astype(np.float32)
 
         features = np.stack([
             dispatch_count, truck_num, distance,
-            next_return, future_30, future_60, future_120
-        ], axis=1)  # (num_stations, 7)
+            next_return, returning_count, future_30, future_60, future_120
+        ], axis=1)  # (num_stations, 8)
 
         # 目标分数 = -(W1 * truck_num + W2 * distance)
         targets = -(W1 * truck_num + W2 * distance)
@@ -141,8 +142,8 @@ def main():
     acc = evaluate(model, features_list[-1000:], targets_list[-1000:])
     print_with_time(f"准确率: {acc:.2%}")
 
-    os.makedirs(MODEL_REPOSITION_SAVE_DIR, exist_ok=True)
-    path = os.path.join(MODEL_REPOSITION_SAVE_DIR, "checkpoint_epoch0.pt")
+    os.makedirs(MODEL_REPOSITION_RL_SAVE_DIR, exist_ok=True)
+    path = os.path.join(MODEL_REPOSITION_RL_SAVE_DIR, "checkpoint_epoch0.pt")
     torch.save({
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),

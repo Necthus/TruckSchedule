@@ -28,7 +28,7 @@ W_DIST = 1.0        # distance 权重（次键 tiebreaker）
 
 def compute_target_score(features_array: np.ndarray) -> np.ndarray:
     """给每个厂的 features 计算目标分数：= -(W_TRUCK * truck_num + W_DIST * dist)
-    features: [dispatch_count, truck_num, dist, next_return, future30, future60, future120]
+    features: [dispatch_count, truck_num, dist, next_return, returning_count, future30, future60, future120]
     """
     truck_num = features_array[:, 1]
     dist = features_array[:, 2]
@@ -118,7 +118,7 @@ def collect_training_data(env: Environment, dates: list) -> list[np.ndarray]:
     return all_features
 
 
-def compute_norm_stats(features_list: list, input_dim=7):
+def compute_norm_stats(features_list: list, input_dim=8):
     all_f = np.vstack(features_list)
     mean = all_f.mean(axis=0).astype(np.float32)
     std = all_f.std(axis=0).astype(np.float32)
@@ -127,7 +127,7 @@ def compute_norm_stats(features_list: list, input_dim=7):
 
 
 def train_model(features_list: list, feat_mean, feat_std,
-                input_dim=7, hidden_dims=(64, 32),
+                input_dim=8, hidden_dims=(64, 32),
                 epochs=100, batch_size=128, lr=0.001):
     """回归训练：网络输出分数逼近 compute_target_score"""
     device = DEVICE
@@ -237,10 +237,10 @@ def main():
     model, optimizer = train_model(features_list, mean, std, epochs=100)
     val_acc = evaluate_model(model, features_list[-500:],
                              [compute_target_score(f) for f in features_list[-500:]],
-                             DEVICE, 7)
+                             DEVICE, 8)
     print_with_time(f"最终验证准确率: {val_acc[1]:.2%}")
 
-    save_dir = MODEL_REPOSITION_SAVE_DIR
+    save_dir = MODEL_REPOSITION_RL_SAVE_DIR
     os.makedirs(save_dir, exist_ok=True)
     path = os.path.join(save_dir, "checkpoint_epoch0_sim.pt")
     torch.save({

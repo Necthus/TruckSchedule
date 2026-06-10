@@ -10,12 +10,14 @@ GPU_ID = 0
 # 方法参数
 
 DISPATCH_METHOD = 'Fastest' # 派单方法 可选项：'Fastest'（优先派送最快的车） 'Follow'（跟随上次选择的厂站）
-REPOSITION_METHOD = 'Retrace' # 车辆调度方法 可选项：'Urgent' 'Retrace' 'RL' 'DispatchAwareRL'
+REPOSITION_METHOD = 'Retrace' # 车辆调度方法 可选项：'Urgent' 'Retrace' 'RL' 'DispatchAwareRL' 'ScratchRL' 'ScratchDispatchAwareRL' 'ScratchDispatchAwareNoCostRL' 'ScratchDispatchAwareNoShapingRL' 'ScratchCombinedRL' 'ScratchCostOnlyRL' 'ScratchPerceptionOnlyRL'
 
 # 训练/测试模式参数
 REPOSITION_TRAIN_MODE = False  # 是否训练Reposition Agent
 DISPATCH_TRAIN_MODE = False    # 是否训练Dispatch Agent（预留）
-TRAIN_TEST_SPLIT_RATIO = 0.8   # 训练集比例，剩余为测试集
+TRAIN_TEST_SPLIT_RATIO = 0.8   # 训练集比例
+VALIDATION_SPLIT_RATIO = 0.1   # 验证集比例，剩余日期作为测试集
+SHUFFLE_TRAIN_DATES = True     # 训练时是否按cycle打乱训练日期顺序
 
 # 测试重复次数
 TEST_REPEAT_NUM = 1
@@ -27,12 +29,46 @@ RL_EPSILON = 0.1        # epsilon-greedy探索率
 RL_EPSILON_MIN = 0.01   # 最小探索率
 RL_EPSILON_DECAY = 0.999  # epsilon衰减率
 
+# RL Reposition需求缺口先验参数。
+# 默认不直接接管线上决策；可在实验/引导训练时通过 --rl_use_demand_gap_prior 开启。
+RL_USE_DEMAND_GAP_PRIOR = False
+RL_DEMAND_GAP_DEMAND_WEIGHT = 0.45
+RL_DEMAND_GAP_DISTANCE_WEIGHT = 0.08
+RL_DEMAND_GAP_INBOUND_WEIGHT = 0.5
+RL_DEMAND_GAP_INBOUND_HORIZON = 999
+RL_DEMAND_GAP_FUTURE_30_WEIGHT = 1.0
+RL_DEMAND_GAP_FUTURE_60_WEIGHT = 0.5
+RL_DEMAND_GAP_FUTURE_120_WEIGHT = 0.25
+
 # RL训练参数
 REPOSITION_EPISODE_NUM = 2000   # 训练episode数（仅训练模式）
 SAVE_MODEL_FREQUENCY = 10       # 每隔多少episode保存一次模型
+VALIDATION_FREQUENCY = 20       # 训练时每隔多少episode在验证集评估一次
+EARLY_STOP_PATIENCE = 5         # 验证集连续多少次无提升后早停；<=0表示不早停
+EARLY_STOP_MIN_DELTA = 0.0      # 验证集成本至少降低多少才算提升
 MODEL_SAVE_DIR = 'model'
 MODEL_REPOSITION_SAVE_DIR = 'model/reposition/'
+MODEL_REPOSITION_RL_SAVE_DIR = 'model/reposition/rl/'
+MODEL_REPOSITION_DISPATCH_AWARE_SAVE_DIR = 'model/reposition/dispatch_aware_rl/'
+MODEL_REPOSITION_SCRATCH_RL_SAVE_DIR = 'model/reposition/scratch_rl/'
+MODEL_REPOSITION_SCRATCH_DISPATCH_AWARE_SAVE_DIR = 'model/reposition/scratch_dispatch_aware_rl/'
+MODEL_REPOSITION_SCRATCH_DISPATCH_AWARE_NO_COST_SAVE_DIR = 'model/reposition/scratch_dispatch_aware_no_cost_rl/'
+MODEL_REPOSITION_SCRATCH_DISPATCH_AWARE_NO_SHAPING_SAVE_DIR = 'model/reposition/scratch_dispatch_aware_no_shaping_rl/'
+MODEL_REPOSITION_SCRATCH_COMBINED_SAVE_DIR = 'model/reposition/scratch_combined_rl/'
+MODEL_REPOSITION_SCRATCH_COST_ONLY_SAVE_DIR = 'model/reposition/scratch_cost_only_rl/'
+MODEL_REPOSITION_SCRATCH_PERCEPTION_ONLY_SAVE_DIR = 'model/reposition/scratch_perception_only_rl/'
+MODEL_REPOSITION_SCRATCH_RL_BEST_EPOCH = 99
+MODEL_REPOSITION_SCRATCH_DISPATCH_AWARE_BEST_EPOCH = 99
+MODEL_REPOSITION_SCRATCH_DISPATCH_AWARE_NO_COST_BEST_EPOCH = 99
+MODEL_REPOSITION_SCRATCH_DISPATCH_AWARE_NO_SHAPING_BEST_EPOCH = 199
+MODEL_REPOSITION_SCRATCH_COMBINED_BEST_EPOCH = 199
+MODEL_REPOSITION_SCRATCH_COST_ONLY_BEST_EPOCH = 99
+MODEL_REPOSITION_SCRATCH_PERCEPTION_ONLY_BEST_EPOCH = 99
 MODEL_DISPATCH_SAVE_DIR = 'model/dispatch/'
+
+# Scratch combined reward参数。
+# ScratchCombinedRL使用ScratchRL的成本/shape奖励，并按该系数叠加感知层原始奖励。
+SCRATCH_COMBINED_PERCEPTION_REWARD_SCALE = 1.1
 
 # 感知层参数
 PERCEPTION_ALPHA = 0.99  # 时间衰减因子，用于分配负奖励
@@ -104,8 +140,8 @@ STATION_PRODUCTION_LINE_SIZE = 4  # 每个站点生产线数量
 ORDER_START_HOUR = 7  # 订单允许的最早开始时间（小时）
 ORDER_END_HOUR = 20  # 订单允许的最晚结束时间（小时）
 
-EXPERIMENT_START_DATE = '2024-05-01'  # 实验开始日期
-EXPERIMENT_END_DATE = '2024-05-15'    # 实验结束日期
+EXPERIMENT_START_DATE = '2024-01-12'  # 实验开始日期
+EXPERIMENT_END_DATE = '2024-06-04'    # 实验结束日期
 
 
 

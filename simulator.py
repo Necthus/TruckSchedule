@@ -107,8 +107,8 @@ class Environment:
         if IGNORE_INSTANT_ORDERS:
             instant_orders = []
         else:
-            instant_orders = copy.deepcopy(self.instant_orders_dict_by_date[day])
-        plan_orders = copy.deepcopy(self.plan_orders_dict_by_date[day])
+            instant_orders = copy.deepcopy(self.instant_orders_dict_by_date.get(day, []))
+        plan_orders = copy.deepcopy(self.plan_orders_dict_by_date.get(day, []))
 
         for order in plan_orders:
             self.unfinished_orders[order.oid]=order
@@ -392,7 +392,9 @@ class Environment:
             future_dispatch_feature.append(s.count_future_dispatch_given_range(self.current_time,trange))
 
 
-        return [dispatch_count,truck_num,dist,s.get_next_return_time()]+future_dispatch_feature
+        returning_count = len(s.return_time_list)
+
+        return [dispatch_count,truck_num,dist,s.get_next_return_time(),returning_count]+future_dispatch_feature
 
     def truck_state_change(self,truck:Truck):
         # 1 去厂站装水泥 2 排队等待（不一定）+装水泥（一定时间） 3 去工地卸水泥 + 卸水泥（不需要排队） 4 返程
